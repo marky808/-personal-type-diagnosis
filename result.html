@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>パーソナルタイプ診断 - 結果</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary-color: #00c300;
+      --secondary-color: #007700;
+      --background-color: #eef2f6;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--background-color);
+      padding: 20px;
+      min-height: 100vh;
+      color: #333;
+    }
+    .result-container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .result-container h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: var(--primary-color);
+    }
+    .result-score {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: var(--secondary-color);
+      margin-bottom: 20px;
+    }
+    .result-text {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      line-height: 1.5;
+      color: #555;
+    }
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--primary-color);
+      color: #fff;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .cta-button:hover {
+      background-color: var(--secondary-color);
+      transform: translateY(-3px);
+    }
+    .cta-button i { margin-right: 8px; font-size: 1.4rem; }
+  </style>
+</head>
+<body>
+  <div class="result-container">
+    <h1 id="resultTitle"></h1>
+    <div class="result-score" id="resultKey"></div>
+    <div class="result-text" id="resultDescription"></div>
+    <div class="result-text" id="resultInvestment"></div>
+    <br>
+    <a href="index.html" class="cta-button">
+      <i class="fab fa-line"></i>LINEに戻る
+    </a>
+  </div>
+  <script>
+    // 取得：localStorageから保存した回答配列
+    const answers = JSON.parse(localStorage.getItem("typeAnswers")) || [];
+    // 各グループのYes数をカウント（各グループは5問）
+    const groups = { family: 0, capital: 0, self: 0, risk: 0 };
+    // 質問データ（番号順にグループ1～4：合計20問）
+    const questions = [
+      { group: 1 }, { group: 1 }, { group: 1 }, { group: 1 }, { group: 1 },
+      { group: 2 }, { group: 2 }, { group: 2 }, { group: 2 }, { group: 2 },
+      { group: 3 }, { group: 3 }, { group: 3 }, { group: 3 }, { group: 3 },
+      { group: 4 }, { group: 4 }, { group: 4 }, { group: 4 }, { group: 4 }
+    ];
+    questions.forEach((q, i) => {
+      if(answers[i]) {
+        if(q.group === 1) groups.family++;
+        else if(q.group === 2) groups.capital++;
+        else if(q.group === 3) groups.self++;
+        else if(q.group === 4) groups.risk++;
+      }
+    });
+    // 各グループでYesが3問以上なら"1"、未満なら"0"
+    const key =
+      (groups.family >= 3 ? "1" : "0") +
+      (groups.capital >= 3 ? "1" : "0") +
+      (groups.self >= 3 ? "1" : "0") +
+      (groups.risk >= 3 ? "1" : "0");
+    
+    // 診断結果マッピング（例）
+    const types = {
+      "1111": {
+        title: "エリート大黒柱タイプ",
+        description: "あなたは非常に優秀で、自己責任を持って物事を進められる力があります。どんな困難にも挑戦し、失敗も成長の糧にできるでしょう。",
+        investment: "向いている投資→NISA、株式投資、仮想通貨、不動産投資"
+      },
+      "1110": {
+        title: "堅実秀才",
+        description: "着実に現状を築いてきたあなた。堅実な努力が安定した資産形成を導きます。",
+        investment: "向いている投資→NISA、iDeCo、積立保険"
+      },
+      // ... その他の16タイプの定義（必要に応じて追加）
+      "0000": {
+        title: "できることからコツコツタイプ",
+        description: "謙虚で現実的なあなたは、小さな努力の積み重ねが将来大きな成果へとつながるはずです。",
+        investment: "向いている投資→ライフプランニングの作成、支出の削減、保険の見直し、転職、副業"
+      }
+    };
+    const resultType = types[key] || { title: "不明なタイプ", description: "診断に不具合がありました。", investment: "" };
+    
+    // 結果表示
+    document.getElementById("resultTitle").innerHTML = resultType.title;
+    document.getElementById("resultKey").innerHTML = "【家族】" + (groups.family >= 3 ? "○" : "×") +
+      "　【資金】" + (groups.capital >= 3 ? "○" : "×") +
+      "　【自分】" + (groups.self >= 3 ? "○" : "×") +
+      "　【リスク】" + (groups.risk >= 3 ? "○" : "×");
+    document.getElementById("resultDescription").innerHTML = resultType.description;
+    document.getElementById("resultInvestment").innerHTML = resultType.investment;
+  </script>
+</body>
+</html>
