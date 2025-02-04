@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>パーソナルタイプ診断 - あなたの個性を見抜く</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Google Fonts (Roboto) -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary-color: #00c300;
+      --secondary-color: #009900;
+      --background-color: #eef2f6;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #e0f7e9, #c8f0d8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animated { animation: fadeInUp 0.8s ease-out forwards; }
+    .cover-card {
+      width: 90%;
+      max-width: 600px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      overflow: hidden;
+    }
+    .cover-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      padding: 40px 20px;
+      text-align: center;
+      color: #fff;
+    }
+    .cover-header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+    .cover-header p { font-size: 1.1rem; }
+    .cover-main { padding: 30px 20px; text-align: center; }
+    .features {
+      display: flex;
+      justify-content: space-around;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    .feature { display: flex; flex-direction: column; align-items: center; }
+    .feature i { font-size: 2.5rem; color: var(--primary-color); margin-bottom: 8px; }
+    .feature span { font-size: 1rem; font-weight: 500; color: var(--secondary-color); }
+    .cover-description {
+      font-size: 1rem;
+      margin: 20px auto;
+      line-height: 1.5;
+      color: #555;
+      max-width: 500px;
+    }
+    .cta-button {
+      background-color: var(--primary-color);
+      border: none;
+      border-radius: 50px;
+      color: #fff;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .cta-button:hover { background-color: var(--secondary-color); transform: translateY(-3px); }
+    .cover-footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 0.9rem;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="cover-card animated">
+    <header class="cover-header animated" style="animation-delay: 0.2s;">
+      <h1>パーソナルタイプ診断</h1>
+      <p>あなたの個性を見抜き、未来への道しるべを発見しよう</p>
+    </header>
+    <main class="cover-main animated" style="animation-delay: 0.4s;">
+      <div class="features">
+        <div class="feature">
+          <i class="fa-solid fa-bolt"></i>
+          <span>即時診断</span>
+        </div>
+        <div class="feature">
+          <i class="fa-solid fa-user"></i>
+          <span>16タイプ解析</span>
+        </div>
+        <div class="feature">
+          <i class="fa-solid fa-heart"></i>
+          <span>無料で体験</span>
+        </div>
+      </div>
+      <div class="cover-description">
+        あなたのライフスタイルや価値観、行動パターンに基づいて16通りのタイプに分類します。<br>
+        自分自身の強みや改善点を把握し、より良い未来への第一歩を踏み出しましょう。
+      </div>
+      <button class="cta-button animated" style="animation-delay: 0.6s;" id="startButton">診断を始める</button>
+    </main>
+    <footer class="cover-footer animated" style="animation-delay: 0.8s;">
+      &copy; 2025 パーソナルタイプ診断 All Rights Reserved.
+    </footer>
+  </div>
+  <script>
+    document.getElementById("startButton").addEventListener("click", function(){
+      window.location.href = "quiz.html";
+    });
+  </script>
+</body>
+</html>
