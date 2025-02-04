@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>パーソナルタイプ診断 - 質問</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary-color: #00c300;
+      --secondary-color: #009900;
+      --background-gradient: linear-gradient(135deg, #e0f7e9, #c8f0d8);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--background-gradient);
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .quiz-container {
+      width: 90%;
+      max-width: 700px;
+      margin: 20px auto;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 10px 0;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: var(--secondary-color);
+    }
+    .option-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px 15px;
+      margin: 10px 0;
+      cursor: pointer;
+      background-color: #fafafa;
+      transition: background-color 0.2s, transform 0.2s;
+    }
+    .option-card:hover { background-color: #f5f5f5; transform: scale(1.02); }
+    .option-card.selected {
+      border-color: var(--primary-color);
+      background-color: #e6f9e6;
+    }
+    .category-header {
+      background: rgba(217, 247, 190, 0.8);
+      color: var(--primary-color);
+      padding: 10px;
+      border-radius: 8px;
+      margin: 20px 0 10px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    @keyframes fadeInUpStrong {
+      from { opacity: 0; transform: translateY(40px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes fadeOutShrink {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.8); }
+    }
+    .animated { animation: fadeInUpStrong 0.8s ease-out forwards; }
+  </style>
+</head>
+<body>
+  <div class="quiz-container" id="quizArea"></div>
+  <script>
+    // 質問データ：20問（グループ1～4）
+    const questions = [
+      { text: "1. 現在ご結婚されてますか？", group: 1 },
+      { text: "2. 未成年のお子さんはいらっしゃいますか？", group: 1 },
+      { text: "3. あなたの収入がないと家計が成り立ちませんか？", group: 1 },
+      { text: "4. 自分にもしものことがあった時、家族の生活が不安ですか？", group: 1 },
+      { text: "5. 自宅はあなた名義の持ち家ですか？", group: 1 },
+      
+      { text: "6. 現在500万以上の資産はありますか？", group: 2 },
+      { text: "7. 世帯年収は1000万円以上ですか？", group: 2 },
+      { text: "8. 特に大きな出費がない月は毎月5万円以上の貯蓄はできますか？", group: 2 },
+      { text: "9. いまの収入は安定していますか？", group: 2 },
+      { text: "10. 職場が潰れても一年以内には収入に戻せますか？", group: 2 },
+      
+      { text: "11. あなたは金融について詳しいですか？", group: 3 },
+      { text: "12. 投資や保険に関する知識を自ら身につけたいと思いますか？", group: 3 },
+      { text: "13. 資産運用中の大きな下落にも冷静に対応できますか？", group: 3 },
+      { text: "14. ライフステージの変化に合わせ、資産を見直すことができますか？", group: 3 },
+      { text: "15. 全て自分で解決したいと思いますか？", group: 3 },
+      
+      { text: "16. リスクはあっても早く大きく資産が増える投資に魅力を感じますか？", group: 4 },
+      { text: "17. 100倍になる可能性がある投資は魅力的ですか？", group: 4 },
+      { text: "18. 投資で損失が出ても自己責任で受け入れられますか？", group: 4 },
+      { text: "19. 投資に失敗しても取り返すチャンスがあると思いますか？", group: 4 },
+      { text: "20. 自分の資産を客観的に扱えますか？", group: 4 }
+    ];
+    // カテゴリー名マッピング
+    const groupNames = { 1: "家族", 2: "資金", 3: "自分", 4: "リスク" };
+    
+    let currentQuestionIndex = 0;
+    let answers = []; // 各質問の回答をtrue/falseで保存
+    
+    const quizArea = document.getElementById("quizArea");
+    
+    function showQuestion() {
+      quizArea.innerHTML = "";
+      // カテゴリー見出しを表示（初回または前問とグループが変わったとき）
+      if (currentQuestionIndex === 0 || questions[currentQuestionIndex - 1].group !== questions[currentQuestionIndex].group) {
+        const categoryHeader = document.createElement("div");
+        categoryHeader.className = "category-header animated";
+        categoryHeader.textContent = groupNames[questions[currentQuestionIndex].group];
+        quizArea.appendChild(categoryHeader);
+      }
+      
+      if (currentQuestionIndex < questions.length) {
+        const q = questions[currentQuestionIndex];
+        const card = document.createElement("div");
+        card.className = "card animated";
+        card.innerHTML = `<h2>${q.text}</h2>`;
+        
+        const btnYes = document.createElement("div");
+        btnYes.className = "option-card";
+        btnYes.textContent = "はい";
+        btnYes.addEventListener("click", () => {
+          answers.push(true);
+          card.style.animation = "fadeOutShrink 0.3s ease-out forwards";
+          setTimeout(() => { currentQuestionIndex++; showQuestion(); }, 300);
+        });
+        
+        const btnNo = document.createElement("div");
+        btnNo.className = "option-card";
+        btnNo.textContent = "いいえ";
+        btnNo.addEventListener("click", () => {
+          answers.push(false);
+          card.style.animation = "fadeOutShrink 0.3s ease-out forwards";
+          setTimeout(() => { currentQuestionIndex++; showQuestion(); }, 300);
+        });
+        
+        card.appendChild(btnYes);
+        card.appendChild(btnNo);
+        quizArea.appendChild(card);
+      } else {
+        // 全質問終了時、localStorageに回答情報を保存してローディングページへ
+        localStorage.setItem("typeAnswers", JSON.stringify(answers));
+        window.location.href = "loading.html";
+      }
+    }
+    showQuestion();
+  </script>
+</body>
+</html>
