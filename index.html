@@ -13,6 +13,7 @@
       --primary-color: #00c300;
       --secondary-color: #009900;
       --background-color: #eef2f6;
+      --line-color: #06C755;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -81,6 +82,76 @@
       font-size: 0.9rem;
       color: #777;
     }
+    /* LINE友達登録モーダル用のスタイル */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .line-modal {
+      background-color: #fff;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 500px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    .line-modal h2 {
+      color: var(--line-color);
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+    }
+    .line-icon {
+      font-size: 3rem;
+      color: var(--line-color);
+      margin-bottom: 15px;
+    }
+    .line-description {
+      margin-bottom: 25px;
+      line-height: 1.6;
+      color: #555;
+    }
+    .line-button {
+      background-color: var(--line-color);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 25px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+    }
+    .line-button:hover {
+      background-color: #05a649;
+      transform: translateY(-2px);
+    }
+    .line-button i {
+      margin-right: 8px;
+    }
+    .complete-button {
+      display: none;
+      background-color: #555;
+    }
+    .already-registered {
+      font-size: 0.9rem;
+      color: #777;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-top: 10px;
+      display: inline-block;
+    }
   </style>
 </head>
 <body>
@@ -109,14 +180,131 @@
         自分自身の強みや改善点を把握し、より良い未来への第一歩を踏み出しましょう。
       </div>
       <button class="cta-button animated" style="animation-delay: 0.6s;" id="startButton">診断を始める</button>
+      
+      <!-- フォールバック用のLINE友達登録リンク（通常は非表示） -->
+      <p class="fallback-link" style="margin-top: 15px; font-size: 0.85rem; display: none;" id="fallbackLink">
+        <a href="line-register.html" style="color: var(--primary-color);">LINE友達登録ページに直接アクセス</a>
+      </p>
     </main>
     <footer class="cover-footer animated" style="animation-delay: 0.8s;">
       &copy; 2025 パーソナルタイプ診断 All Rights Reserved.
     </footer>
   </div>
+  
+  <!-- LINE友達登録モーダル -->
+  <div class="modal-overlay" id="lineModal">
+    <div class="line-modal animated">
+      <i class="fab fa-line line-icon"></i>
+      <h2>LINE友達登録のお願い</h2>
+      <p class="line-description">
+        診断結果を受け取るには、LINE公式アカウントへの登録が必要です。<br>
+        登録後、より詳しい診断結果やパーソナルタイプに合わせたアドバイスをお届けします。
+      </p>
+      <button class="line-button" id="lineAddButton">
+        <i class="fab fa-line"></i> LINE友達追加
+      </button>
+      <button class="line-button complete-button" id="lineCompleteButton">
+        <i class="fas fa-check"></i> 登録完了！診断を始める
+      </button>
+      <div>
+        <a href="#" class="already-registered" id="alreadyRegistered">すでに登録されている方はこちら</a>
+      </div>
+    </div>
+  </div>
+
   <script>
-    document.getElementById("startButton").addEventListener("click", function(){
+    // LocalStorageキー
+    const LINE_REGISTERED_KEY = 'line_registered';
+    const FIRST_VISIT_KEY = 'first_visit';
+    
+    // URLパラメーターを取得する関数
+    function getUrlParameter(name) {
+      name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+      const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+      const results = regex.exec(location.search);
+      return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+    
+    // 初回訪問かどうかをチェック
+    function isFirstVisit() {
+      return localStorage.getItem(FIRST_VISIT_KEY) !== 'visited';
+    }
+    
+    // LINE友達登録済みかどうかをチェック
+    function isLineRegistered() {
+      return localStorage.getItem(LINE_REGISTERED_KEY) === 'registered';
+    }
+    
+    // LINEからのアクセスかどうかをチェック
+    function isFromLine() {
+      return getUrlParameter('from') === 'line';
+    }
+    
+    // LINE友達登録モーダルを表示
+    function showLineModal() {
+      document.getElementById('lineModal').style.display = 'flex';
+      
+      // 8秒後に完了ボタンを表示
+      setTimeout(() => {
+        document.getElementById('lineCompleteButton').style.display = 'inline-flex';
+      }, 8000);
+    }
+    
+    // 診断を開始する処理
+    function startDiagnosis() {
+      // quiz.htmlに直接遷移するように変更
       window.location.href = "quiz.html";
+    }
+    
+    // ページロード時の処理
+    document.addEventListener('DOMContentLoaded', function() {
+      // 「診断を始める」ボタンのイベントリスナー
+      document.getElementById("startButton").addEventListener("click", function() {
+        // 直接診断開始（LINE登録モーダルをスキップ）
+        startDiagnosis();
+      });
+      
+      // LINE友達追加ボタンのイベントリスナー
+      document.getElementById("lineAddButton").addEventListener("click", function() {
+        // LINE友達追加のURLを開く（実際のLINE URLに置き換えてください）
+        window.open('https://line.me/R/ti/p/@あなたのLINE公式アカウント', '_blank');
+      });
+      
+      // 登録完了ボタンのイベントリスナー
+      document.getElementById("lineCompleteButton").addEventListener("click", function() {
+        // LINE登録済みとしてマーク
+        localStorage.setItem(LINE_REGISTERED_KEY, 'registered');
+        // 初回訪問済みとしてマーク
+        localStorage.setItem(FIRST_VISIT_KEY, 'visited');
+        // 診断開始
+        startDiagnosis();
+      });
+      
+      // すでに登録済みリンクのイベントリスナー
+      document.getElementById("alreadyRegistered").addEventListener("click", function(e) {
+        e.preventDefault();
+        // LINE登録済みとしてマーク
+        localStorage.setItem(LINE_REGISTERED_KEY, 'registered');
+        // 初回訪問済みとしてマーク
+        localStorage.setItem(FIRST_VISIT_KEY, 'visited');
+        // 診断開始
+        startDiagnosis();
+      });
+      
+      // LINEからのアクセスの場合、自動的に登録済みとしてマーク
+      if (isFromLine()) {
+        localStorage.setItem(LINE_REGISTERED_KEY, 'registered');
+      }
+      
+      // 訪問記録を更新
+      if (isFirstVisit()) {
+        localStorage.setItem(FIRST_VISIT_KEY, 'visited');
+      }
+      
+      // フォールバックリンクを10秒後に表示（問題が起きた場合のため）
+      setTimeout(() => {
+        document.getElementById('fallbackLink').style.display = 'block';
+      }, 10000);
     });
   </script>
 </body>
