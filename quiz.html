@@ -19,8 +19,50 @@
       font-family: 'Roboto', sans-serif;
       background: var(--background-gradient);
       padding: 20px;
+      padding-top: 80px; /* プログレスバー分の余白を追加 */
       min-height: 100vh;
     }
+    
+    /* プログレスバー関連スタイル */
+    .progress-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      padding: 15px 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      z-index: 100;
+    }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .question-count {
+      font-weight: bold;
+      color: var(--secondary-color);
+    }
+    .category-indicator {
+      background: rgba(0, 195, 0, 0.1);
+      color: var(--secondary-color);
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+    }
+    .progress-bar {
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--primary-color);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+    
     .quiz-container {
       width: 90%;
       max-width: 700px;
@@ -76,9 +118,38 @@
       to { transform: rotate(360deg); }
     }
     .animated { animation: fadeInUpStrong 0.8s ease-out forwards; }
+    
+    /* ドットナビゲーション */
+    .dot-navigation {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0 20px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      margin: 0 3px;
+      background-color: #ddd;
+      border-radius: 50%;
+    }
+    .dot.active {
+      background-color: var(--primary-color);
+      transform: scale(1.2);
+    }
   </style>
 </head>
 <body>
+  <!-- プログレスバー表示エリア -->
+  <div class="progress-container">
+    <div class="progress-info">
+      <div class="question-count">質問 <span id="currentQuestionNumber">0</span>/20</div>
+      <div class="category-indicator" id="currentCategory">カテゴリー</div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+  </div>
+  
   <div class="quiz-container" id="quizArea">
     <!-- 初期化中メッセージ -->
     <div class="card" style="text-align: center;">
@@ -139,6 +210,25 @@
     let answers = []; // 各質問の回答をtrue/falseで保存
     
     const quizArea = document.getElementById("quizArea");
+    const progressFill = document.getElementById("progressFill");
+    const currentQuestionNumber = document.getElementById("currentQuestionNumber");
+    const currentCategory = document.getElementById("currentCategory");
+    
+    // プログレス表示を更新する関数
+    function updateProgress() {
+      // 質問番号の更新（1-20表示）
+      currentQuestionNumber.textContent = currentQuestionIndex + 1;
+      
+      // プログレスバーの幅を更新（%）
+      const progressPercent = (currentQuestionIndex / questions.length) * 100;
+      progressFill.style.width = `${progressPercent}%`;
+      
+      // カテゴリ名の更新
+      if (currentQuestionIndex < questions.length) {
+        const groupId = questions[currentQuestionIndex].group;
+        currentCategory.textContent = groupNames[groupId] || `グループ${groupId}`;
+      }
+    }
     
     // 質問を表示する関数
     function showQuestion() {
@@ -148,6 +238,9 @@
           finishQuiz();
           return;
         }
+        
+        // プログレス表示を更新
+        updateProgress();
         
         showDebug(`質問表示: ${currentQuestionIndex + 1}問目表示中`);
         
@@ -178,6 +271,25 @@
           
           quizArea.appendChild(categoryHeader);
         }
+        
+        // ドットナビゲーションを追加
+        const dotNavigation = document.createElement("div");
+        dotNavigation.className = "dot-navigation";
+        
+        // カテゴリごとの質問数を計算
+        const categoryQuestionsCount = questions.filter(q => q.group === currentGroup).length;
+        
+        // 現在のカテゴリ内での質問インデックスを計算
+        const categoryStart = questions.findIndex(q => q.group === currentGroup);
+        const categoryCurrentIndex = currentQuestionIndex - categoryStart;
+        
+        // ドットを生成
+        for (let i = 0; i < categoryQuestionsCount; i++) {
+          const dot = document.createElement("div");
+          dot.className = `dot ${i === categoryCurrentIndex ? 'active' : ''}`;
+          dotNavigation.appendChild(dot);
+        }
+        quizArea.appendChild(dotNavigation);
         
         // 質問カードを表示
         const card = document.createElement("div");
@@ -222,6 +334,10 @@
     function finishQuiz() {
       try {
         showDebug("全質問回答完了、回答を保存します");
+        
+        // プログレスバーを100%に
+        progressFill.style.width = '100%';
+        currentQuestionNumber.textContent = questions.length;
         
         // 回答をlocalStorageに保存
         localStorage.setItem("typeAnswers", JSON.stringify(answers));
