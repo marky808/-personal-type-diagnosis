@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-KZGT7CGS');</script>
+  <!-- End Google Tag Manager -->
   <meta charset="UTF-8">
   <title>LINE友達登録 - 診断結果を受け取る</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -120,9 +127,35 @@
     .already-registered:hover {
       color: #555;
     }
+    /* QRコード用のスタイル追加 */
+    .qr-container {
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #f5f5f5;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .qr-code {
+      width: 200px;
+      height: 200px;
+      margin-bottom: 10px;
+    }
+    .line-id {
+      font-weight: bold;
+      color: var(--line-dark);
+      font-size: 1.2rem;
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KZGT7CGS"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
   <div class="line-container">
     <i class="fab fa-line line-icon"></i>
     <h1>あと一歩！</h1>
@@ -139,6 +172,14 @@
         <li>最新の診断ツールや役立つコンテンツをお届け</li>
       </ul>
     </div>
+    
+    <!-- QRコードとLINE ID追加 -->
+    <div class="qr-container">
+      <p>以下のQRコードをスキャンするか、LINE IDで検索してください</p>
+      <img src="./images/hige-qr.png" alt="LINE公式アカウントQRコード" class="qr-code">
+      <p class="line-id">LINE ID: @money_adviserjp</p>
+    </div>
+    
     <button id="lineAddButton" class="line-button">
       <i class="fab fa-line"></i> LINE友だち追加
     </button>
@@ -156,8 +197,8 @@
     
     // LINE友達追加ボタン
     document.getElementById('lineAddButton').addEventListener('click', function() {
-      // LINE友達追加のURLを開く（実際のLINE URLに置き換えてください）
-      window.open('https://line.me/R/ti/p/@あなたのLINE公式アカウント', '_blank');
+      // LINE友達追加のURLを開く（実際のLINE URLに変更）
+      window.open('https://line.me/R/ti/p/@money_adviserjp', '_blank');
       
       // 8秒後に完了ボタンを表示
       setTimeout(() => {
